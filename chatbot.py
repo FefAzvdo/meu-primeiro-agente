@@ -1,4 +1,6 @@
 import sys
+import json
+import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -50,8 +52,20 @@ FREQUENCY_PENALTY = 0.0
 PRESENCE_PENALTY = 0.0
 STREAM = True
 
+HISTORY_FILE = "history.json"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return [{"role": "system", "content": SYSTEM_PROMPT}]
+
+def save_history(history):
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+
 client = OpenAI()
-history = [{"role": "system", "content": SYSTEM_PROMPT}]
+history = load_history()
 
 print("Chatbot iniciado. Digite 'sair' para encerrar.\n")
 
@@ -85,3 +99,4 @@ while True:
 
     print("\n")
     history.append({"role": "assistant", "content": reply})
+    save_history(history)
